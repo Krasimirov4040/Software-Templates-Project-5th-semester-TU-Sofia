@@ -1,0 +1,91 @@
+@startuml
+skinparam classFontSize 12
+skinparam classAttributeFontSize 10
+skinparam monochrome true  ' For a clean, professional look (remove for colors)
+
+' Interfaces
+interface Media {
+  +getTitle(): String
+  +getGenre(): String
+  +getRating(): double
+  +getYear(): int
+  +setRating(rating: double): void
+  +getDescription(): String
+}
+
+interface Observable {
+  +addObserver(observer: Observer): void
+  +removeObserver(observer: Observer): void
+  +notifyObservers(): void
+}
+
+interface Observer {
+  +update(): void
+}
+
+' Concrete Media Classes
+class Book implements Media {
+  -author: String
+  -pageCount: int
+  +Book(title: String, genre: String, rating: double, year: int, author: String, pageCount: int)
+}
+
+class Film implements Media {
+  -director: String
+  -durationMinutes: int
+  +Film(title: String, genre: String, rating: double, year: int, director: String, durationMinutes: int)
+}
+
+class Music implements Media {
+  -artist: String
+  -album: String
+  -trackLengthSeconds: int
+  +Music(title: String, genre: String, rating: double, year: int, artist: String, album: String, trackLengthSeconds: int)
+}
+
+' Patterns
+class MediaLibrary implements Observable {
+  -mediaItems: List<Media>
+  -observers: List<Observer>
+  +addMedia(media: Media): void
+  +removeMedia(title: String): void
+  +setRating(title: String, rating: double): void
+  +filterByGenre(genre: String): Iterable<Media>
+  +getAllMedia(): List<Media>
+}
+
+class GenreIterator implements Iterator<Media> {
+  -mediaList: List<Media>
+  -genre: String
+  -currentIndex: int
+  +hasNext(): boolean
+  +next(): Media
+}
+
+class LegacyBook {
+  -bookTitle: String
+  -bookGenre: String
+  -bookRating: double
+  -bookYear: int
+  -authorName: String
+  -pages: int
+}
+
+class BookAdapter implements Media {
+  -legacyBook: LegacyBook
+  +BookAdapter(legacyBook: LegacyBook)
+}
+
+class LibraryDisplayObserver implements Observer {
+  -library: MediaLibrary
+  +update(): void
+}
+
+' Relationships
+MediaLibrary o-- "many" Media : contains
+MediaLibrary o-- "many" Observer : notifies
+MediaLibrary ..> GenreIterator : uses
+BookAdapter *-- LegacyBook : adapts
+LibraryDisplayObserver --> MediaLibrary : observes
+
+@enduml
